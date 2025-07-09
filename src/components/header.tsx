@@ -104,13 +104,19 @@ export const Header = () => {
             whileTap={{ scale: 0.95 }}
             className="sm:hidden"
           >
-            <Button
-              size="small"
-              onClick={() => open(<ConnectWalletDialog />)}
-              className="px-3 py-1 text-sm"
-            >
-              Connect
-            </Button>
+            {renderAccountInfo() ? (
+              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
+                {truncateAddress(renderAccountInfo())}
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                onClick={() => open(<ConnectWalletDialog />)}
+                className="px-3 py-1 text-sm"
+              >
+                Connect
+              </Button>
+            )}
           </motion.div>
 
           {/* Mobile Menu Button */}

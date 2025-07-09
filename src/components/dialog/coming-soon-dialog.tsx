@@ -46,7 +46,7 @@ export const ComingSoonDialog = () => {
         </div>
 
         {/* Nút Đóng */}
-        <Button onClick={close} size="large" className="w-full">
+        <Button onClick={close} size="large" className="w-full md:mb-0 mb-6">
           Đã hiểu!
         </Button>
       </div>
