@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme inline {
+    --color-primary: #4DA2FF;
+    --color-secondary: #C0E6FF;
+    --color-foreground: #011829;
+    --color-background: #030f1c;
+}
+
+body {
+    background-color: var(--color-background);
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    color: #f7f7f8;
+    letter-spacing: -.02em;
+    font-weight: 500;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(77, 162, 255, 0.5);
+    border-radius: 4px;
+    transition: opacity 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    opacity: 0.8;
+}
+
+::-webkit-scrollbar-thumb:active {
+    opacity: 1;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(77, 162, 255, 0.4) transparent;
+}
