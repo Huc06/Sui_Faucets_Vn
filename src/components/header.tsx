@@ -6,6 +6,9 @@ import { Link, useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useWallet } from "@suiet/wallet-kit";
+import { truncateAddress } from "@/lib/utils";
+import { ComingSoonDialog } from "./dialog/coming-soon-dialog";
 
 const navItems = [
   {
@@ -14,19 +17,11 @@ const navItems = [
   },
   {
     label: "Cộng đồng",
-    href: "/community",
+    href: "https://discord.gg/DBRhkYcHeP",
   },
   {
-    label: "Hackathon",
-    href: "/hackathon",
-  },
-  {
-    label: "Podcast",
-    href: "/podcast",
-  },
-  {
-    label: "Workshop",
-    href: "/workshop",
+    label: "Tài liệu",
+    href: "https://docs.sui.io.vn",
   },
 ];
 
@@ -34,6 +29,16 @@ export const Header = () => {
   const { open } = useDialogStore();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { account, connected } = useWallet();
+
+  function renderAccountInfo(): string | null {
+    if (!connected) return null;
+    if (account?.suinsName) {
+      return account.suinsName;
+    } else {
+      return account?.address || null;
+    }
+  }
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -79,9 +84,18 @@ export const Header = () => {
             whileTap={{ scale: 0.95 }}
             className="hidden sm:block"
           >
-            <Button size="small" onClick={() => open(<ConnectWalletDialog />)}>
-              Connect Wallet
-            </Button>
+            {renderAccountInfo() ? (
+              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
+                {truncateAddress(renderAccountInfo())}
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                onClick={() => open(<ConnectWalletDialog />)}
+              >
+                Connect Wallet
+              </Button>
+            )}
           </motion.div>
 
           {/* Mobile Connect Wallet Button (smaller) */}
