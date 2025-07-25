@@ -12,15 +12,15 @@ import { ComingSoonDialog } from "./dialog/coming-soon-dialog";
 
 const navItems = [
   {
-    label: "Sự kiện",
-    href: "https://lu.ma/SuiHubVN",
+    label: "User",
+    href: "/",
   },
   {
-    label: "Cộng đồng",
-    href: "https://discord.gg/DBRhkYcHeP",
+    label: "Admin",
+    href: "/admin",
   },
   {
-    label: "Tài liệu",
+    label: "Docs",
     href: "https://docs.sui.io.vn",
   },
 ];
@@ -94,6 +94,44 @@ export const Header = () => {
                 onClick={() => open(<ConnectWalletDialog />)}
               >
                 Connect Wallet
+              </Button>
+            )}
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="hidden sm:block"
+          >
+            {renderAccountInfo() ? (
+              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
+                {truncateAddress(renderAccountInfo())}
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                onClick={() => open(<ConnectWalletDialog />)}
+              >
+                Login
+              </Button>
+            )}
+          </motion.div>
+
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="hidden sm:block"
+          >
+            {renderAccountInfo() ? (
+              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
+                {truncateAddress(renderAccountInfo())}
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                onClick={() => open(<ConnectWalletDialog />)}
+              >
+                Sign Up
               </Button>
             )}
           </motion.div>
