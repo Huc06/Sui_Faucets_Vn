@@ -1,10 +1,14 @@
 import { useWallet } from "@suiet/wallet-kit";
 import { useDialogStore } from "@/store";
 import { DialogHeader } from "../ui";
+import { Wallet, LogOut, Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { truncateAddress } from "@/lib/utils";
 
 export const ConnectWalletDialog = () => {
   const { close } = useDialogStore();
-  const { select, configuredWallets, detectedWallets } = useWallet();
+  const { select, configuredWallets, detectedWallets, connected, account, disconnect } = useWallet();
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   const handleWalletClick = (wallet: any) => {
     // check if user installed the wallet
@@ -19,7 +23,88 @@ export const ConnectWalletDialog = () => {
     close();
   };
 
+  const handleDisconnect = () => {
+    disconnect();
+    close();
+  };
+
+  const handleCopyAddress = async () => {
+    if (account?.address) {
+      try {
+        await navigator.clipboard.writeText(account.address);
+        setCopiedAddress(true);
+        setTimeout(() => setCopiedAddress(false), 2000);
+      } catch (error) {
+        console.error("Failed to copy address:", error);
+      }
+    }
+  };
+
   const allWallets = [...detectedWallets, ...configuredWallets];
+
+  // If connected, show wallet info and disconnect option
+  if (connected && account) {
+    return (
+      <div className="flex flex-col flex-1 min-h-0">
+        <DialogHeader title="Wallet Connected" onClose={close} className="pb-4" />
+        
+        <div className="space-y-6 flex-1">
+          {/* Connected Wallet Info */}
+          <div className="bg-gradient-to-r from-[#4DA2FF]/10 to-[#011829]/10 rounded-xl p-6 border border-[#4DA2FF]/20">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#4DA2FF] to-[#011829] rounded-full flex items-center justify-center">
+                <Wallet className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg text-[#011829] dark:text-white text-gray-600">
+                  {account.suinsName || "Sui Wallet"}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Connected successfully
+                </p>
+              </div>
+            </div>
+
+            {/* Address Display */}
+            <div className="bg-white dark:bg-[#030F1C] rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+              <label className="text-sm font-medium text-gray-600 dark:text-gray-400 block mb-2">
+                Wallet Address
+              </label>
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-sm text-[#011829] dark:text-white">
+                  {truncateAddress(account.address)}
+                </span>
+                <button
+                  onClick={handleCopyAddress}
+                  className="ml-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                  title="Copy address"
+                >
+                  {copiedAddress ? (
+                    <Check className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-500" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            <button
+              onClick={handleDisconnect}
+              className="w-full flex items-center justify-center space-x-2 p-4 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="font-medium">Disconnect Wallet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If not connected, show wallet selection
 
   return (
     <div className=" flex flex-col flex-1 min-h-0">

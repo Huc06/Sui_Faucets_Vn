@@ -2,6 +2,7 @@ import SuiVNLogo from "../assets/sui-vn.png";
 import { useDialogStore } from "@/store";
 import { Button, IconButton } from "./ui";
 import { ConnectWalletDialog } from "./dialog/connect-wallet-dialog";
+import { SignupDialog } from "./dialog/signup-dialog";
 import { Link, useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -26,7 +27,7 @@ const navItems = [
 ];
 
 export const Header = () => {
-  const { open } = useDialogStore();
+  const { open, close } = useDialogStore();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { account, connected } = useWallet();
@@ -104,7 +105,7 @@ export const Header = () => {
             className="hidden sm:block"
           >
             {renderAccountInfo() ? (
-              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
+              <Button size="small" onClick={() => open(<ConnectWalletDialog />)}>
                 {truncateAddress(renderAccountInfo())}
               </Button>
             ) : (
@@ -129,7 +130,7 @@ export const Header = () => {
             ) : (
               <Button
                 size="small"
-                onClick={() => open(<ConnectWalletDialog />)}
+                onClick={() => open(<SignupDialog onClose={close} />)}
               >
                 Sign Up
               </Button>
