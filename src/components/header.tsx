@@ -3,6 +3,7 @@ import { useDialogStore } from "@/store";
 import { Button, IconButton } from "./ui";
 import { ConnectWalletDialog } from "./dialog/connect-wallet-dialog";
 import { SignupDialog } from "./dialog/signup-dialog";
+import { LoginDialog } from "./dialog/login-dialog";
 import { Link, useNavigate } from "react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -111,7 +112,25 @@ export const Header = () => {
             ) : (
               <Button
                 size="small"
-                onClick={() => open(<ConnectWalletDialog />)}
+                onClick={() => open(<LoginDialog 
+                  onClose={close} 
+                  onSwitchToSignup={() => {
+                    close();
+                    open(<SignupDialog 
+                      onClose={close} 
+                      onSwitchToLogin={() => {
+                        close();
+                        open(<LoginDialog 
+                          onClose={close} 
+                          onSwitchToSignup={() => {
+                            close();
+                            open(<SignupDialog onClose={close} />);
+                          }}
+                        />);
+                      }}
+                    />);
+                  }}
+                />)}
               >
                 Login
               </Button>
@@ -130,7 +149,19 @@ export const Header = () => {
             ) : (
               <Button
                 size="small"
-                onClick={() => open(<SignupDialog onClose={close} />)}
+                onClick={() => open(<SignupDialog 
+                  onClose={close} 
+                  onSwitchToLogin={() => {
+                    close();
+                    open(<LoginDialog 
+                      onClose={close} 
+                      onSwitchToSignup={() => {
+                        close();
+                        open(<SignupDialog onClose={close} />);
+                      }}
+                    />);
+                  }}
+                />)}
               >
                 Sign Up
               </Button>

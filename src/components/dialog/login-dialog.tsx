@@ -2,22 +2,20 @@ import React, { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 
-interface SignupDialogProps {
+interface LoginDialogProps {
   onClose?: () => void
-  onSwitchToLogin?: () => void
+  onSwitchToSignup?: () => void
 }
 
-export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToLogin }) => {
+export const LoginDialog: React.FC<LoginDialogProps> = ({ onClose, onSwitchToSignup }) => {
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    agreedToTerms: false,
   })
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -26,18 +24,18 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Form submitted:", formData)
-    // Handle signup logic here
+    console.log("Login submitted:", formData)
+    // Handle login logic here
     onClose?.()
   }
 
-  const isFormValid = formData.email && formData.password && formData.agreedToTerms
+  const isFormValid = formData.email && formData.password
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto flex">
         {/* Left Side - Promotional Content */}
-        <div className="flex-1 bg-gradient-to-br from-[#4DA2FF] via-[#4DA2FF] to-[#011829] p-8 flex flex-col text-white relative overflow-hidden hidden md:flex min-h-[600px]">
+        <div className="flex-1 bg-gradient-to-br from-[#4DA2FF] via-[#4DA2FF] to-[#011829] p-8 flex flex-col justify-between text-white relative overflow-hidden hidden md:flex min-h-[600px]">
           {/* Background decorative elements */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-3xl transform rotate-12"></div>
@@ -46,7 +44,7 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
             <div className="absolute top-60 left-40 w-16 h-16 bg-white rounded-xl transform rotate-30"></div>
           </div>
 
-          <div className="relative z-10">
+          <div className="relative z-10 flex-1">
             {/* SUI Logo */}
             <div className="flex items-center gap-2 mb-16">
               <div className="flex items-center">
@@ -58,47 +56,46 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
             {/* Main Content */}
             <div className="max-w-md">
               <h1 className="text-4xl font-bold mb-12 leading-tight">
-                EXPLORE SUI NETWORK AND UNLOCK WEB3'S LIMITLESS POTENTIAL
+                WELCOME BACK TO SUI NETWORK
               </h1>
 
               {/* 3D Geometric Illustration */}
-              <div className="my-12 flex justify-center">
-                <div className="relative w-80 h-48">
+              <div className="my-16 flex justify-center">
+                <div className="relative w-80 h-60">
                   {/* Main geometric shape */}
-                  <div className="absolute top-6 left-6 w-40 h-28 bg-gradient-to-br from-[#C0E6FF]/80 to-[#4DA2FF]/80 rounded-3xl transform rotate-12 shadow-2xl"></div>
+                  <div className="absolute top-8 left-8 w-48 h-36 bg-gradient-to-br from-[#C0E6FF]/80 to-[#4DA2FF]/80 rounded-3xl transform rotate-12 shadow-2xl"></div>
 
                   {/* Secondary shapes */}
-                  <div className="absolute top-0 left-0 w-28 h-20 bg-gradient-to-br from-[#C0E6FF]/70 to-[#4DA2FF]/70 rounded-2xl transform -rotate-12 shadow-xl"></div>
-                  <div className="absolute bottom-2 right-0 w-24 h-16 bg-gradient-to-br from-[#4DA2FF]/70 to-[#011829]/70 rounded-xl transform rotate-45 shadow-xl"></div>
-                  <div className="absolute top-12 right-6 w-16 h-12 bg-gradient-to-br from-[#C0E6FF]/60 to-[#4DA2FF]/60 rounded-lg transform -rotate-30 shadow-lg"></div>
+                  <div className="absolute top-0 left-0 w-32 h-24 bg-gradient-to-br from-[#C0E6FF]/70 to-[#4DA2FF]/70 rounded-2xl transform -rotate-12 shadow-xl"></div>
+                  <div className="absolute bottom-4 right-0 w-28 h-20 bg-gradient-to-br from-[#4DA2FF]/70 to-[#011829]/70 rounded-xl transform rotate-45 shadow-xl"></div>
+                  <div className="absolute top-16 right-8 w-20 h-16 bg-gradient-to-br from-[#C0E6FF]/60 to-[#4DA2FF]/60 rounded-lg transform -rotate-30 shadow-lg"></div>
 
                   {/* Small accent shapes */}
-                  <div className="absolute bottom-8 left-2 w-10 h-10 bg-gradient-to-br from-[#C0E6FF]/50 to-[#4DA2FF]/50 rounded-full shadow-md"></div>
-                  <div className="absolute top-2 right-12 w-6 h-6 bg-gradient-to-br from-[#4DA2FF]/50 to-[#011829]/50 rounded-full shadow-sm"></div>
+                  <div className="absolute bottom-12 left-4 w-12 h-12 bg-gradient-to-br from-[#C0E6FF]/50 to-[#4DA2FF]/50 rounded-full shadow-md"></div>
+                  <div className="absolute top-4 right-16 w-8 h-8 bg-gradient-to-br from-[#4DA2FF]/50 to-[#011829]/50 rounded-full shadow-sm"></div>
                 </div>
-              </div>
-
-              {/* Description Text */}
-              <div className="mt-8">
-                <p className="text-sm opacity-90 leading-relaxed">
-                  Join the Sui ecosystem and experience the future of blockchain technology with fast, secure, and scalable transactions.
-                </p>
               </div>
             </div>
           </div>
+
+          <div className="relative z-10 text-sm opacity-90 max-w-md mt-auto pb-4">
+            <p className="leading-relaxed">
+              Continue your journey in the Sui ecosystem with fast, secure, and scalable blockchain technology.
+            </p>
+          </div>
         </div>
 
-        {/* Right Side - Registration Form */}
+        {/* Right Side - Login Form */}
         <div className="flex-1 bg-white p-8 flex flex-col relative">
           {/* Top Right Buttons */}
           <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-            {/* Switch to Login Button */}
+            {/* Switch to Sign Up Button */}
             <button
               type="button"
-              onClick={onSwitchToLogin}
+              onClick={onSwitchToSignup}
               className="px-3 py-1 text-sm text-[#4DA2FF] hover:text-[#011829] hover:bg-[#4DA2FF]/5 rounded-md transition-colors font-medium"
             >
-              Log in 
+              Sign up
             </button>
             
             {/* Close Button */}
@@ -122,8 +119,8 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
           {/* Form Content */}
           <div className="max-w-md mx-auto w-full">
             <div className="mb-6">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
-              <p className="text-gray-600">Join the Sui ecosystem today.</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h2>
+              <p className="text-gray-600">Sign in to your Sui account.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -165,8 +162,6 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
                 </button>
               </div>
 
-              <p className="text-sm text-gray-500 text-center mb-6">We won't push anything to you without permission.</p>
-
               <div className="text-center text-gray-400 mb-6 relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-gray-200"></div>
@@ -206,6 +201,7 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
                       required
                     />
                     <button
+                      type="button"
                       className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-transparent border-none bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                     >
@@ -218,34 +214,38 @@ export const SignupDialog: React.FC<SignupDialogProps> = ({ onClose, onSwitchToL
                   </div>
                 </div>
 
-                {/* Terms Agreement */}
-                <div className="flex items-start gap-3">
-                  <Checkbox
-                    id="terms"
-                    checked={formData.agreedToTerms}
-                    onCheckedChange={(checked) => handleInputChange("agreedToTerms", checked as boolean)}
-                    className="mt-1 border-[#4DA2FF] checked:bg-[#4DA2FF] checked:border-[#4DA2FF]"
-                  />
-                  <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                    I agree to{" "}
-                    <a href="#" className="text-[#4DA2FF] hover:underline">
-                      Terms of Use
-                    </a>{" "}
-                    &{" "}
-                    <a href="#" className="text-[#4DA2FF] hover:underline">
-                      Privacy Policy
-                    </a>
-                  </Label>
+                {/* Forgot Password Link */}
+                <div className="text-right">
+                  <button
+                    type="button"
+                    className="text-sm text-[#4DA2FF] hover:text-[#011829] hover:underline transition-colors"
+                  >
+                    Forgot password?
+                  </button>
                 </div>
 
-                {/* Continue Button */}
+                {/* Login Button */}
                 <button
                   type="submit"
                   className="w-full h-12 bg-gradient-to-r from-[#4DA2FF] to-[#011829] hover:from-[#4DA2FF]/90 hover:to-[#011829]/90 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!isFormValid}
                 >
-                  Create Account
+                  Sign In
                 </button>
+
+                {/* Sign Up Link */}
+                <div className="text-center mt-6">
+                  <p className="text-sm text-gray-600">
+                    Don't have a Sui account?{" "}
+                    <button
+                      type="button"
+                      onClick={onSwitchToSignup}
+                      className="text-[#4DA2FF] hover:text-[#011829] hover:underline font-medium transition-colors"
+                    >
+                      Sign up
+                    </button>
+                  </p>
+                </div>
               </div>
             </form>
           </div>
