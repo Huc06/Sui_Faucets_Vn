@@ -5,3 +5,4 @@ export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 export { Badge } from "./badge";
 export { Label } from "./label";
 export { Checkbox } from "./checkbox";
+export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";

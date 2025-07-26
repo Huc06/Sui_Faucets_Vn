@@ -5,6 +5,7 @@ import { WalletProvider } from "@suiet/wallet-kit";
 import { BrowserRouter, Route, Routes } from "react-router";
 import { Header } from "./components";
 import HomePage from "./pages/home";
+import { AdminDashboard } from "./pages/admin";
 import { Dialog } from "./components/ui";
 
 createRoot(document.getElementById("root")!).render(
@@ -14,6 +15,7 @@ createRoot(document.getElementById("root")!).render(
       <Dialog />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   </WalletProvider>
