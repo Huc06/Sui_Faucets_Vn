@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
 import { useAdminData } from "@/hooks/use-admin-data"
+import { AnalyticsTab } from "@/components/admin/analytics-tab"
 import suiVideo from "@/assets/sui-video-1.mp4"
 
 
@@ -177,7 +178,7 @@ export function AdminDashboard() {
                   </TabsList>
 
           <TabsContent value="analytics">
-            {/* <AnalyticsTab stats={stats} /> */}
+            <AnalyticsTab stats={stats} />
           </TabsContent>
 
                   <TabsContent value="transactions" className="space-y-4">
