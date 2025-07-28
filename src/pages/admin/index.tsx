@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
 import { useAdminData } from "@/hooks/use-admin-data"
 import { AnalyticsTab } from "@/components/admin/analytics-tab"
+import { TransactionsTab } from  "@/components/admin/transaction-tab"
 import suiVideo from "@/assets/sui-video-1.mp4"
 
 
@@ -40,6 +41,7 @@ export function AdminDashboard() {
         <div className="relative z-10 bg-[#011829]/80 backdrop-blur-sm rounded-xl p-8 text-center">
           <p className="text-red-400 mb-4">Failed to load dashboard data</p>
           <Button 
+            size="small"
             onClick={refreshData}
             className="bg-[#4DA2FF] text-white hover:bg-[#011829]"
           >
@@ -177,15 +179,12 @@ export function AdminDashboard() {
                     </TabsTrigger>
                   </TabsList>
 
-          <TabsContent value="analytics">
-            <AnalyticsTab stats={stats} />
-          </TabsContent>
+                  <TabsContent value="analytics">
+                    <AnalyticsTab stats={stats} />
+                  </TabsContent>
 
                   <TabsContent value="transactions" className="space-y-4">
-                    <div className="p-6 border border-[#4DA2FF]/20 rounded-lg bg-[#4DA2FF]/5">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Transactions</h3>
-                      <p className="text-gray-600 dark:text-gray-40f0">Transaction history and details will be displayed here.</p>
-                    </div>
+                     <TransactionsTab transactions={stats.recentTransactions} />
                   </TabsContent>
 
                   <TabsContent value="settings" className="space-y-4">
