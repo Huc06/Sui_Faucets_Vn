@@ -9,6 +9,15 @@ interface CountriesChartProps {
 }
 
 export function CountriesChart({ data }: CountriesChartProps) {
+  // Early return if no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">No data available</p>
+      </div>
+    )
+  }
+
   const renderLabel = (entry: any) => {
     const dataEntry = data[entry.index];
     return `${dataEntry.country} ${(entry.percent * 100).toFixed(0)}%`;

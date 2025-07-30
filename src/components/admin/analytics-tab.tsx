@@ -22,7 +22,7 @@ export function AnalyticsTab({ stats }: AnalyticsTabProps) {
             <CardDescription className="text-gray-600 dark:text-[#C0E6FF]">Daily request volume for the past week</CardDescription>
           </CardHeader>
           <CardContent>
-            <RequestsChart data={stats.requestsOverTime} />
+            <RequestsChart data={stats.requestsOverTime || []} />
           </CardContent>
         </Card>
 
@@ -33,7 +33,7 @@ export function AnalyticsTab({ stats }: AnalyticsTabProps) {
             <CardDescription className="text-gray-600 dark:text-[#C0E6FF]">Request distribution by country</CardDescription>
           </CardHeader>
           <CardContent>
-            <CountriesChart data={stats.topCountries} />
+            <CountriesChart data={stats.topCountries || []} />
           </CardContent>
         </Card>
       </div>

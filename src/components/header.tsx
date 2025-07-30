@@ -22,7 +22,7 @@ const navItems = [
   },
   {
     label: "Docs",
-    href: "https://docs.sui.io.vn",
+    href: "https://sui-faucet.weminal.xyz/docs",
   },
 ];
 

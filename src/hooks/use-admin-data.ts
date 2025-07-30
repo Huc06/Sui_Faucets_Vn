@@ -1,25 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { fetchAdminStats } from "@/api/stats/route"
+import { analyticsAPI, systemAPI, type AnalyticsStats } from "@/api/services"
 
-interface AdminStats {
-  totalRequests: number
-  totalDistributed: number
-  successRate: number
-  activeUsers24h: number
-  averageResponseTime: number
-  topCountries: Array<{ country: string; requests: number }>
-  requestsOverTime: Array<{ date: string; requests: number }>
-  recentTransactions: Array<{
-    id: number
-    address: string
-    amount: number
-    timestamp: string
-    txHash: string
-    status: string
-  }>
-}
+// Use the AnalyticsStats interface from API services
+type AdminStats = AnalyticsStats
 
 export function useAdminData() {
   const [stats, setStats] = useState<AdminStats | null>(null)
@@ -31,9 +16,24 @@ export function useAdminData() {
       setLoading(true)
       setError(null)
 
-      // Use the React API service instead of fetch("/api/stats")
-      const data = await fetchAdminStats()
-      setStats(data)
+      // Fetch data from real APIs in parallel
+      const [statsData, topCountries, requestsOverTime, recentTransactions] = await Promise.all([
+        analyticsAPI.getStats(7),
+        analyticsAPI.getTopCountries(7, 5),
+        analyticsAPI.getHourly(7), // Use real hourly data for time series
+        analyticsAPI.getTransactionHistory(10) // Get real transaction history
+      ])
+      
+      // Combine the data
+      const combinedStats = {
+        ...statsData,
+        topCountries,
+        requestsOverTime,
+        recentTransactions
+      }
+      
+      console.log("Combined stats:", combinedStats)
+      setStats(combinedStats)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
       console.error("Failed to fetch admin stats:", err)

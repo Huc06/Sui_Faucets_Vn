@@ -117,7 +117,7 @@ export function AdminDashboard() {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Total Requests</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalRequests.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{(stats.totalRequests || 0).toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
@@ -126,7 +126,7 @@ export function AdminDashboard() {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">SUI Distributed</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{(stats.totalDistributed / 1000000).toFixed(1)}M</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{((stats.totalDistributed || 0) / 1000000).toFixed(1)}M</p>
                       </div>
                     </div>
                   </div>
@@ -135,7 +135,7 @@ export function AdminDashboard() {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Success Rate</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.successRate}%</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{(stats.successRate || 0)}%</p>
                       </div>
                     </div>
                   </div>
@@ -144,7 +144,7 @@ export function AdminDashboard() {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Active Users (24h)</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.activeUsers24h.toLocaleString()}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{(stats.activeUsers24h || 0).toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
@@ -186,7 +186,7 @@ export function AdminDashboard() {
                   </TabsContent>
 
                   <TabsContent value="transactions" className="space-y-4">
-                     <TransactionsTab transactions={stats.recentTransactions} />
+                     <TransactionsTab transactions={stats.recentTransactions || []} />
                   </TabsContent>
 
                   <TabsContent value="settings" className="space-y-4">
