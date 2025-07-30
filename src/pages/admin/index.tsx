@@ -5,6 +5,7 @@ import { RefreshCw } from "lucide-react"
 import { useAdminData } from "@/hooks/use-admin-data"
 import { AnalyticsTab } from "@/components/admin/analytics-tab"
 import { TransactionsTab } from  "@/components/admin/transaction-tab"
+import { SettingsTab } from "@/components/admin/settings-tab"
 import suiVideo from "@/assets/sui-video-1.mp4"
 
 
@@ -188,10 +189,7 @@ export function AdminDashboard() {
                   </TabsContent>
 
                   <TabsContent value="settings" className="space-y-4">
-                    <div className="p-6 border border-[#4DA2FF]/20 rounded-lg bg-[#4DA2FF]/5">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">System Settings</h3>
-                      <p className="text-gray-600 dark:text-gray-400">Configuration and system settings will be displayed here.</p>
-                    </div>
+                    <SettingsTab/>
                   </TabsContent>
 
                   <TabsContent value="monitoring" className="space-y-4">
