@@ -3,14 +3,28 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Droplet, ThumbsUp, FileText, Copy, LinkIcon, Code, PenToolIcon as Tool, Wallet } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useDialogStore } from "@/store"
+import { ConnectWalletDialog } from "@/components/dialog/connect-wallet-dialog"
+import { useWallet } from "@suiet/wallet-kit"
 import suiVideo from "@/assets/sui-video-1.mp4"
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { open } = useDialogStore()
+  const { connected } = useWallet()
+
+  // Listen for wallet connection changes
+  useEffect(() => {
+    if (connected) {
+      setIsLoggedIn(true)
+    } else {
+      setIsLoggedIn(false)
+    }
+  }, [connected])
 
   const handleLogin = () => {
-    setIsLoggedIn(true)
+    open(<ConnectWalletDialog />)
   }
   return (
     <div className="w-full min-h-screen relative flex flex-col items-center justify-start py-4 px-3 sm:px-4 md:px-6 lg:px-8">

@@ -10,7 +10,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useWallet } from "@suiet/wallet-kit";
 import { truncateAddress } from "@/lib/utils";
-import { ComingSoonDialog } from "./dialog/coming-soon-dialog";
 
 const navItems = [
   {
@@ -80,43 +79,70 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          {/* Desktop Connect Wallet Button */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden sm:block"
-          >
-            {renderAccountInfo() ? (
-              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
-                {truncateAddress(renderAccountInfo())}
-              </Button>
-            ) : (
-              <Button
-                size="small"
-                onClick={() => open(<ConnectWalletDialog />)}
+          {/* Desktop Buttons */}
+          <div className="hidden sm:flex items-center gap-3">
+            {connected ? (
+              // Khi đã connect: chỉ hiển thị wallet info
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Connect Wallet
-              </Button>
-            )}
-          </motion.div>
-
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden sm:block"
-          >
-            {renderAccountInfo() ? (
-              <Button size="small" onClick={() => open(<ConnectWalletDialog />)}>
-                {truncateAddress(renderAccountInfo())}
-              </Button>
+                <Button size="small" onClick={() => open(<ConnectWalletDialog />)}>
+                  {truncateAddress(renderAccountInfo())}
+                </Button>
+              </motion.div>
             ) : (
-              <Button
-                size="small"
-                onClick={() => open(<LoginDialog 
-                  onClose={close} 
-                  onSwitchToSignup={() => {
-                    close();
-                    open(<SignupDialog 
+              // Khi chưa connect: hiển thị 3 buttons
+              <>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    size="small"
+                    onClick={() => open(<ConnectWalletDialog />)}
+                  >
+                    Connect Wallet
+                  </Button>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    size="small"
+                    onClick={() => open(<LoginDialog 
+                      onClose={close} 
+                      onSwitchToSignup={() => {
+                        close();
+                        open(<SignupDialog 
+                          onClose={close} 
+                          onSwitchToLogin={() => {
+                            close();
+                            open(<LoginDialog 
+                              onClose={close} 
+                              onSwitchToSignup={() => {
+                                close();
+                                open(<SignupDialog onClose={close} />);
+                              }}
+                            />);
+                          }}
+                        />);
+                      }}
+                    />)}
+                  >
+                    Login
+                  </Button>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    size="small"
+                    onClick={() => open(<SignupDialog 
                       onClose={close} 
                       onSwitchToLogin={() => {
                         close();
@@ -128,54 +154,23 @@ export const Header = () => {
                           }}
                         />);
                       }}
-                    />);
-                  }}
-                />)}
-              >
-                Login
-              </Button>
+                    />)}
+                  >
+                    Sign Up
+                  </Button>
+                </motion.div>
+              </>
             )}
-          </motion.div>
+          </div>
 
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="hidden sm:block"
-          >
-            {renderAccountInfo() ? (
-              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
-                {truncateAddress(renderAccountInfo())}
-              </Button>
-            ) : (
-              <Button
-                size="small"
-                onClick={() => open(<SignupDialog 
-                  onClose={close} 
-                  onSwitchToLogin={() => {
-                    close();
-                    open(<LoginDialog 
-                      onClose={close} 
-                      onSwitchToSignup={() => {
-                        close();
-                        open(<SignupDialog onClose={close} />);
-                      }}
-                    />);
-                  }}
-                />)}
-              >
-                Sign Up
-              </Button>
-            )}
-          </motion.div>
-
-          {/* Mobile Connect Wallet Button (smaller) */}
+          {/* Mobile Button */}
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="sm:hidden"
           >
-            {renderAccountInfo() ? (
-              <Button size="small" onClick={() => open(<ComingSoonDialog />)}>
+            {connected ? (
+              <Button size="small" onClick={() => open(<ConnectWalletDialog />)}>
                 {truncateAddress(renderAccountInfo())}
               </Button>
             ) : (

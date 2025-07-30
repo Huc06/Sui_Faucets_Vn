@@ -46,7 +46,6 @@ export const ConnectWalletDialog = () => {
   if (connected && account) {
     return (
       <div className="flex flex-col flex-1 min-h-0">
-        <DialogHeader title="Wallet Connected" onClose={close} className="pb-4" />
         
         <div className="space-y-6 flex-1">
           {/* Connected Wallet Info */}
