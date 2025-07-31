@@ -1,4 +1,5 @@
 // API Service functions for SUI Faucet
+// Always use empty string to leverage proxy (Vite dev server + Vercel rewrites)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
 // Types
