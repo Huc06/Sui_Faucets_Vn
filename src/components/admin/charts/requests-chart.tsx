@@ -7,6 +7,15 @@ interface RequestsChartProps {
 }
 
 export function RequestsChart({ data }: RequestsChartProps) {
+  // Early return if no data
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">No data available</p>
+      </div>
+    )
+  }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data}>

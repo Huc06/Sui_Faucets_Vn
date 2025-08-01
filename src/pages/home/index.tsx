@@ -7,24 +7,105 @@ import { useState, useEffect } from "react"
 import { useDialogStore } from "@/store"
 import { ConnectWalletDialog } from "@/components/dialog/connect-wallet-dialog"
 import { useWallet } from "@suiet/wallet-kit"
+import { faucetAPI } from "@/api/services"
+import { useToast } from "@/hooks/use-toast"
 import suiVideo from "@/assets/sui-video-1.mp4"
 
 const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [walletAddress, setWalletAddress] = useState("")
+  const [isRequesting, setIsRequesting] = useState(false)
+  const [selectedNetwork, setSelectedNetwork] = useState("testnet")
+  const [rateLimited, setRateLimited] = useState(false)
+  const [rateLimitCountdown, setRateLimitCountdown] = useState(0)
   const { open } = useDialogStore()
-  const { connected } = useWallet()
+  const { connected, account } = useWallet()
+  const { toast } = useToast()
 
   // Listen for wallet connection changes
   useEffect(() => {
     if (connected) {
       setIsLoggedIn(true)
+      // Auto-fill wallet address when connected
+      if (account?.address) {
+        setWalletAddress(account.address)
+      }
     } else {
       setIsLoggedIn(false)
+      setWalletAddress("")
     }
-  }, [connected])
+  }, [connected, account])
+
+  // Handle rate limit countdown
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null
+    
+    if (rateLimitCountdown > 0) {
+      interval = setInterval(() => {
+        setRateLimitCountdown((prev) => {
+          if (prev <= 1) {
+            setRateLimited(false)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [rateLimitCountdown])
 
   const handleLogin = () => {
     open(<ConnectWalletDialog />)
+  }
+
+  const handleFaucetRequest = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!walletAddress) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid wallet address",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsRequesting(true)
+    
+    try {
+      const response = await faucetAPI.requestTokens(walletAddress)
+      
+      toast({
+        title: "Success!",
+        description: `Successfully sent 1.0 SUI to your wallet. TX: ${response.txHash?.slice(0, 10)}...`,
+      })
+    } catch (error) {
+      console.error("Faucet request failed:", error)
+      
+      let errorMessage = "Failed to request SUI tokens"
+      if (error instanceof Error) {
+        if (error.message.includes("429") || error.message.includes("Rate limit")) {
+          errorMessage = error.message
+          setRateLimited(true)
+          setRateLimitCountdown(60) // Start 60 second countdown
+        } else if (error.message.includes("400")) {
+          errorMessage = "Invalid wallet address or request"
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
+      toast({
+        title: "Request Failed",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsRequesting(false)
+    }
   }
   return (
     <div className="w-full min-h-screen relative flex flex-col items-center justify-start py-4 px-3 sm:px-4 md:px-6 lg:px-8">
@@ -53,23 +134,33 @@ const HomePage = () => {
               Sui Testnet Faucet - Get Free SUI Tokens
             </h1>
             <div className="relative rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-md dark:bg-[#030F1C] min-h-[140px] sm:min-h-[160px]">
-              <form className="space-y-3 sm:space-y-4">
+              <form onSubmit={handleFaucetRequest} className="space-y-3 sm:space-y-4">
                 <div className="grid gap-3 sm:gap-4 lg:grid-cols-[1fr_2fr_1fr]">
-                  <div className="space-y-2 p-3 rounded-lg dark:bg-[#011829]/50 hover:bg-[#4DA2FF]/5 dark:hover:bg-[#4DA2FF]/10 transition-colors duration-200">
+                  <div className={`space-y-2 p-3 rounded-lg transition-all duration-200 ${
+                    !connected && !isLoggedIn 
+                      ? 'opacity-50 bg-gray-50 dark:bg-gray-800/50' 
+                      : 'dark:bg-[#011829]/50 hover:bg-[#4DA2FF]/5 dark:hover:bg-[#4DA2FF]/10'
+                  }`}>
                     <label
                       htmlFor="network"
                       className="text-sm font-medium leading-none text-black dark:text-black"
                     >
                       Select Network
                     </label>
-                    <Select defaultValue="devnet">
-                      <SelectTrigger id="network" className="w-full h-9 bg-white/50 dark:bg-[#030F1C]/50 border-[#C0E6FF]/30 dark:border-[#011829]/30 text-black/70 dark:text-white/70 hover:bg-[#4DA2FF]/5 dark:hover:bg-[#4DA2FF]/10 hover:border-[#4DA2FF]/50 dark:hover:border-[#4DA2FF]/50 transition-colors duration-200">
+                    <Select 
+                      value={selectedNetwork} 
+                      onValueChange={setSelectedNetwork}
+                      disabled={!connected && !isLoggedIn}
+                    >
+                      <SelectTrigger id="network" className={`w-full h-9 transition-colors duration-200 ${
+                        !connected && !isLoggedIn
+                          ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 cursor-not-allowed'
+                          : 'bg-white/50 dark:bg-[#030F1C]/50 border-[#C0E6FF]/30 dark:border-[#011829]/30 text-black/70 dark:text-white/70 hover:bg-[#4DA2FF]/5 dark:hover:bg-[#4DA2FF]/10 hover:border-[#4DA2FF]/50 dark:hover:border-[#4DA2FF]/50'
+                      }`}>
                         <SelectValue placeholder="Select Network" />
                       </SelectTrigger>
                       <SelectContent className="bg-white/90 dark:bg-[#030F1C]/90 backdrop-blur-sm">
-                        <SelectItem value="devnet" className="text-black/70 dark:text-white/70">Devnet</SelectItem>
                         <SelectItem value="testnet" className="text-black/70 dark:text-white/70">Testnet</SelectItem>
-                        <SelectItem value="mainnet" className="text-black/70 dark:text-white/70">Mainnet</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -82,9 +173,12 @@ const HomePage = () => {
                       Wallet Address
                     </label>
                     <Input 
-                      id="address" 
+                      id="address"
+                      value={walletAddress}
+                      onChange={(e) => setWalletAddress(e.target.value)}
                       placeholder="Enter your Sui wallet address (0x...)" 
                       className="h-9 text-sm bg-white dark:bg-[#030F1C] border-2 border-[#4DA2FF] dark:border-[#C0E6FF] text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-[#4DA2FF]/50 hover:bg-[#4DA2FF]/5 dark:hover:bg-[#4DA2FF]/10 hover:border-[#4DA2FF] dark:hover:border-[#4DA2FF] transition-colors duration-200"
+                      required
                     />
                   </div>
                   
@@ -92,12 +186,26 @@ const HomePage = () => {
                     <label className="text-sm font-medium leading-none text-transparent">
                       &nbsp;
                     </label>
-                    <button 
-                      type="button"
-                      className="w-full bg-[#4DA2FF] text-white shadow-md hover:bg-[#011829] dark:bg-[#4DA2FF] dark:hover:bg-[#011829] text-sm h-9 font-medium border-0 rounded-md px-3 transition-colors duration-200 cursor-pointer flex items-center justify-center"
-                    >
-                      Get 1.0 SUI
-                    </button>
+                    
+                    {/* Show Login button when not connected/logged in */}
+                    {!connected && !isLoggedIn ? (
+                      <button 
+                        type="button"
+                        onClick={handleLogin}
+                        className="w-full bg-[#4DA2FF] text-white shadow-md hover:bg-[#011829] text-sm h-9 font-medium border-0 rounded-md px-3 transition-colors duration-200 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Wallet className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      // Show Get SUI button when connected/logged in
+                      <button 
+                        type="submit"
+                        disabled={isRequesting || !walletAddress || rateLimited}
+                        className="w-full bg-[#4DA2FF] text-white shadow-md hover:bg-[#011829] dark:bg-[#4DA2FF] dark:hover:bg-[#011829] text-sm h-9 font-medium border-0 rounded-md px-3 transition-colors duration-200 cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isRequesting ? "Requesting..." : rateLimited ? `Rate Limited (${rateLimitCountdown}s)` : "Get 1.0 SUI"}
+                      </button>
+                    )}
                   </div>
                 </div>
               </form>
@@ -133,7 +241,7 @@ const HomePage = () => {
                   <>
                     
                     <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm text-[#011829] dark:text-[#C0E6FF]">
-                      <a href="https://docs.sui.io/references/sui-api" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline hover:text-[#4DA2FF]">
+                      <a href="https://sui-faucet.weminal.xyz/docs" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline hover:text-[#4DA2FF]">
                         <LinkIcon className="h-4 w-4" /> API Documentation
                       </a>
                       <div className="h-4 w-px bg-[#C0E6FF] dark:bg-[#011829]" />
