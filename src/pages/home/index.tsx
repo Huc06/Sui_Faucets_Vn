@@ -353,7 +353,7 @@ const HomePage = () => {
                   <p className="text-sm text-[#011829] dark:text-[#C0E6FF] leading-relaxed">
                     Join the{" "}
                     <a
-                      href="https://discord.gg/y4fSbkev"
+                      href="https://discord.gg/aubGp2pX"
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-[#4DA2FF] underline hover:text-[#011829] dark:text-[#C0E6FF] dark:hover:text-[#4DA2FF] font-medium"
