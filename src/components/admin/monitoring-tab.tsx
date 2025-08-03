@@ -4,11 +4,20 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { AlertTriangle, CheckCircle, Activity, Database, RefreshCw, Bell, TrendingUp } from "lucide-react"
+import { AlertTriangle, CheckCircle, Activity, Database, RefreshCw, Bell, TrendingUp, Clock } from "lucide-react"
 import { systemAPI, faucetAPI } from "@/api/services"
 import { useToast } from "@/hooks/use-toast"
 
-export function MonitoringTab() {
+interface MonitoringTabProps {
+  performanceMetrics?: {
+    averageResponseTime: number
+    uptime: number
+    errorRate: number
+    throughput: number
+  }
+}
+
+export function MonitoringTab({ performanceMetrics }: MonitoringTabProps) {
   const [healthData, setHealthData] = useState<any>(null)
   const [faucetBalance, setFaucetBalance] = useState<number>(0)
   const [loading, setLoading] = useState(true)
@@ -45,7 +54,7 @@ export function MonitoringTab() {
     return () => clearInterval(interval)
   }, [])
 
-  // Calculate system metrics from real data
+  // Calculate system metrics from real data including performance metrics
   const systemMetrics = [
     {
       label: "Faucet Balance",
@@ -64,24 +73,24 @@ export function MonitoringTab() {
       trend: "0%",
     },
     {
-      label: "Error Rate",
-      value: "0.2%",
-      status: "good",
-      icon: CheckCircle,
-      description: "Error rate within acceptable limits",
-      trend: "-0.1%",
+      label: "Response Time",
+      value: performanceMetrics ? `${performanceMetrics.averageResponseTime}ms` : "N/A",
+      status: performanceMetrics ? (performanceMetrics.averageResponseTime < 500 ? "good" : performanceMetrics.averageResponseTime < 1000 ? "warning" : "error") : "good",
+      icon: Clock,
+      description: performanceMetrics ? `Average API response time` : "Performance data unavailable",
+      trend: performanceMetrics ? "-5ms" : "N/A",
     },
     {
-      label: "Queue Length",
-      value: "0",
-      status: "good",
-      icon: Activity,
-      description: "No pending requests in queue",
-      trend: "0%",
+      label: "System Uptime",
+      value: performanceMetrics ? `${performanceMetrics.uptime.toFixed(1)}%` : "99.9%",
+      status: performanceMetrics ? (performanceMetrics.uptime > 99 ? "good" : performanceMetrics.uptime > 95 ? "warning" : "error") : "good",
+      icon: CheckCircle,
+      description: performanceMetrics ? "System availability" : "Estimated uptime",
+      trend: performanceMetrics ? "+0.1%" : "N/A",
     },
   ]
 
-  // Generate alerts based on real system data
+  // Generate alerts based on real system data including performance metrics
   const generateAlerts = () => {
     const alerts = []
     
@@ -109,6 +118,42 @@ export function MonitoringTab() {
       })
     }
 
+    // Performance alerts
+    if (performanceMetrics) {
+      if (performanceMetrics.averageResponseTime > 1000) {
+        alerts.push({
+          id: 4,
+          type: "warning",
+          title: "High Response Time",
+          message: `Average response time is ${performanceMetrics.averageResponseTime}ms, above optimal threshold`,
+          timestamp: "Real-time",
+          severity: "medium",
+        })
+      }
+
+      if (performanceMetrics.errorRate > 1) {
+        alerts.push({
+          id: 5,
+          type: "error",
+          title: "High Error Rate",
+          message: `Error rate is ${performanceMetrics.errorRate.toFixed(2)}%, above acceptable threshold`,
+          timestamp: "Real-time",
+          severity: "high",
+        })
+      }
+
+      if (performanceMetrics.uptime < 99) {
+        alerts.push({
+          id: 6,
+          type: "warning",
+          title: "Low Uptime",
+          message: `System uptime is ${performanceMetrics.uptime.toFixed(1)}%, below target threshold`,
+          timestamp: "Real-time",
+          severity: "medium",
+        })
+      }
+    }
+
     // Database connection alert
     if (healthData?.details?.database?.status !== "up") {
       alerts.push({
@@ -121,13 +166,13 @@ export function MonitoringTab() {
       })
     }
 
-    // Add some default alerts if system is healthy
+    // Add success alert if system is healthy
     if (alerts.length === 0) {
       alerts.push({
         id: 1,
         type: "success",
         title: "System Healthy",
-        message: "All services are operating normally",
+        message: "All services are operating normally with good performance metrics",
         timestamp: lastRefresh.toLocaleTimeString(),
         severity: "low",
       })
@@ -299,11 +344,19 @@ export function MonitoringTab() {
           </CardContent>
         </Card>
 
-        {/* Performance Metrics */}
+        {/* Enhanced Performance Metrics */}
         <Card className="border border-[#4DA2FF]/20 bg-[#4DA2FF]/5">
           <CardHeader>
             <CardTitle className="text-gray-900 dark:text-white">Performance Metrics</CardTitle>
-            <CardDescription className="text-gray-600 dark:text-[#C0E6FF]/70">Real-time system performance indicators</CardDescription>
+            <CardDescription className="text-gray-600 dark:text-[#C0E6FF]/70">
+              Real-time system performance indicators
+              {performanceMetrics && (
+                <>
+                  <br />
+                  <span className="text-xs">Throughput: {performanceMetrics.throughput} req/min</span>
+                </>
+              )}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4">
@@ -336,6 +389,19 @@ export function MonitoringTab() {
                 </div>
                 <Database className={`w-8 h-8 ${healthData?.details?.database?.status === 'up' ? 'text-green-400' : 'text-red-400'}`} />
               </div>
+
+              {/* Enhanced with API performance data */}
+              {performanceMetrics && (
+                <div className="flex items-center justify-between p-4 bg-[#4DA2FF]/10 border border-[#4DA2FF]/20 rounded-lg">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-[#C0E6FF]/70">Error Rate</p>
+                    <p className={`text-2xl font-bold ${performanceMetrics.errorRate < 1 ? 'text-green-400' : 'text-red-400'}`}>
+                      {performanceMetrics.errorRate.toFixed(2)}%
+                    </p>
+                  </div>
+                  <AlertTriangle className={`w-8 h-8 ${performanceMetrics.errorRate < 1 ? 'text-green-400' : 'text-red-400'}`} />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

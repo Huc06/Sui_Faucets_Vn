@@ -1,17 +1,43 @@
 "use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, LogOut } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useAdminData } from "@/hooks/use-admin-data"
 import { AnalyticsTab } from "@/components/admin/analytics-tab"
 import { TransactionsTab } from  "@/components/admin/transaction-tab"
 import { SettingsTab } from "@/components/admin/settings-tab"
 import { MonitoringTab } from "@/components/admin/monitoring-tab"
+import { WalletActivity } from "@/components/admin/wallet-activity"
+import { AdminLogin } from "@/components/admin/admin-login"
 import suiVideo from "@/assets/sui-video-1.mp4"
 
 
 export function AdminDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { stats, loading, error, refreshData } = useAdminData()
+
+  // Check if user is already authenticated on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token')
+    if (token) {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true)
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token')
+    setIsAuthenticated(false)
+  }
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return <AdminLogin onLoginSuccess={handleLoginSuccess} />
+  }
 
   if (loading) {
     return (
@@ -99,15 +125,25 @@ export function AdminDashboard() {
                     Monitor and manage the Sui faucet system
                   </p>
                 </div>
-                <Button 
-                  onClick={refreshData} 
-                  size="small"
-                  disabled={loading}
-                  className="bg-[#4DA2FF] text-white hover:bg-[#011829] transition-colors duration-200"
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-                  Refresh
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={refreshData} 
+                    size="small"
+                    disabled={loading}
+                    className="bg-[#4DA2FF] text-white hover:bg-[#011829] transition-colors duration-200"
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                    Refresh
+                  </Button>
+                  <Button 
+                    onClick={handleLogout} 
+                    size="small"
+                    className="bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30 transition-colors duration-200"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
               </div>
 
               {/* Stats Overview Section */}
@@ -154,7 +190,7 @@ export function AdminDashboard() {
               {/* Tabs Section */}
               <div className="relative rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-md dark:bg-[#030F1C]">
                 <Tabs defaultValue="analytics" className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-4 bg-[#4DA2FF]/10 border border-[#4DA2FF]/20">
+                  <TabsList className="grid w-full grid-cols-5 bg-[#4DA2FF]/10 border border-[#4DA2FF]/20">
                     <TabsTrigger 
                       value="analytics" 
                       className="data-[state=active]:bg-[#4DA2FF] data-[state=active]:text-white text-gray-700 dark:text-gray-300"
@@ -166,6 +202,12 @@ export function AdminDashboard() {
                       className="data-[state=active]:bg-[#4DA2FF] data-[state=active]:text-white text-gray-700 dark:text-gray-300"
                     >
                       Transactions
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="wallet-activity" 
+                      className="data-[state=active]:bg-[#4DA2FF] data-[state=active]:text-white text-gray-700 dark:text-gray-300"
+                    >
+                      Wallet Search
                     </TabsTrigger>
                     <TabsTrigger 
                       value="settings" 
@@ -189,12 +231,16 @@ export function AdminDashboard() {
                      <TransactionsTab transactions={stats.recentTransactions || []} />
                   </TabsContent>
 
+                  <TabsContent value="wallet-activity" className="space-y-4">
+                    <WalletActivity />
+                  </TabsContent>
+
                   <TabsContent value="settings" className="space-y-4">
                     <SettingsTab/>
                   </TabsContent>
 
                   <TabsContent value="monitoring" className="space-y-4">
-                    <MonitoringTab/>
+                    <MonitoringTab performanceMetrics={stats.performanceMetrics} />
                   </TabsContent>
                 </Tabs>
               </div>

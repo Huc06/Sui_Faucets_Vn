@@ -2,7 +2,7 @@
 
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts"
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"]
+const COLORS = ["#4DA2FF", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#C0E6FF", "#82CA9D", "#FFC658"]
 
 interface CountriesChartProps {
   data: Array<{ country: string; requests: number }>
