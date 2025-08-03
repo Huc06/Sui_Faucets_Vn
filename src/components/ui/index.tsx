@@ -6,3 +6,5 @@ export { Badge } from "./badge";
 export { Label } from "./label";
 export { Checkbox } from "./checkbox";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+export { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
+export { Alert, AlertDescription, AlertTitle } from "./alert";

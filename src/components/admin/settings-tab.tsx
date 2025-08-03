@@ -13,13 +13,12 @@ import { systemAPI, type SystemSettings } from "@/api/services"
 export function SettingsTab() {
   const [config, setConfig] = useState<SystemSettings>({
     normalizedAmount: 1,
-    limitPerIp: 5,
-    ttlPerIp: 3600, // 1 hour in seconds
+    limitPerIp: 2, // Match API default
+    ttlPerIp: 120, // Match API default (2 minutes)
     isFaucetEnabled: true,
     isRateLimitEnabled: true,
   })
-  const [loading, setLoading] = useState(false)
-  const [fetchingSettings, setFetchingSettings] = useState(true)
+  const [_loading, setLoading] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const [showSuccessBanner, setShowSuccessBanner] = useState(false)
@@ -28,71 +27,41 @@ export function SettingsTab() {
   // Fetch current settings on mount
   useEffect(() => {
     let isMounted = true
+    let hasFetched = false // Prevent multiple calls
     
     const fetchSettings = async () => {
-      // Ensure loading state is true
-      setFetchingSettings(true)
+      if (hasFetched) return // Prevent duplicate calls
+      hasFetched = true
+      
       setIsDataLoaded(false)
       
-      // Minimum loading time - start immediately
-      const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1500))
-      
       try {
-        // Fetch settings
         const settings = await systemAPI.getSettings()
-        
-        // Wait for minimum loading time to complete
-        await minLoadingTime
         
         if (isMounted) {
           setConfig(settings)
           setIsDataLoaded(true)
           setShowSuccessBanner(true)
           
-          // Hide success banner after 3 seconds
+          // Hide success banner after short delay
           setTimeout(() => {
-            setShowSuccessBanner(false)
-          }, 3000)
-          
-          toast({
-            title: "Settings Loaded",
-            description: "System configuration loaded successfully",
-          })
+            if (isMounted) setShowSuccessBanner(false)
+          }, 2000)
         }
       } catch (error) {
-        // Wait for minimum loading time even on error
-        await minLoadingTime
+        console.error("Settings load error:", error)
         
-                  if (isMounted) {
-            // Set default values on error
-            setConfig({
-              normalizedAmount: 1,
-              limitPerIp: 5,
-              ttlPerIp: 3600,
-              isFaucetEnabled: true,
-              isRateLimitEnabled: true,
-            })
-            setIsDataLoaded(true)
-            // Don't show success banner on error
-            setShowSuccessBanner(false)
-            
-            if (error instanceof Error && error.message.includes('401')) {
-              toast({
-                title: "Authentication Required",
-                description: "Please login to access system settings",
-                variant: "destructive",
-              })
-            } else {
-              toast({
-                title: "Settings Load Failed",
-                description: "Using default values",
-                variant: "destructive",
-              })
-            }
-          }
-      } finally {
         if (isMounted) {
-          setFetchingSettings(false)
+          // Use default values on error
+          setConfig({
+            normalizedAmount: 1,
+            limitPerIp: 2,
+            ttlPerIp: 120,
+            isFaucetEnabled: true,
+            isRateLimitEnabled: true,
+          })
+          setIsDataLoaded(true)
+          setShowSuccessBanner(false)
         }
       }
     }
@@ -102,7 +71,7 @@ export function SettingsTab() {
     return () => {
       isMounted = false
     }
-  }, [toast])
+  }, []) // REMOVED toast dependency to prevent infinite loop
 
   const handleConfigUpdate = async () => {
     setLoading(true)
@@ -133,7 +102,7 @@ export function SettingsTab() {
       setConfig((prev) => ({ ...prev, [field]: value }))
     } else {
       const numValue = field === "normalizedAmount" ? Number.parseFloat(value) : Number.parseInt(value)
-      setConfig((prev) => ({ ...prev, [field]: numValue }))
+    setConfig((prev) => ({ ...prev, [field]: numValue }))
     }
     setHasChanges(true)
   }
@@ -141,8 +110,8 @@ export function SettingsTab() {
   const resetToDefaults = () => {
     setConfig({
       normalizedAmount: 1,
-      limitPerIp: 5,
-      ttlPerIp: 3600,
+      limitPerIp: 2,
+      ttlPerIp: 120,
       isFaucetEnabled: true,
       isRateLimitEnabled: true,
     })
@@ -182,7 +151,7 @@ export function SettingsTab() {
               
               {/* Status Text */}
               <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
-                Connecting to https://sui-faucet.weminal.xyz
+                Loading system configuration...
               </div>
             </div>
           </CardContent>
@@ -202,7 +171,7 @@ export function SettingsTab() {
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900 dark:text-white">Settings Loaded Successfully</p>
                 <p className="text-xs text-gray-600 dark:text-[#C0E6FF]/70">
-                  System configuration is ready for editing
+                  System configuration loaded from server
                 </p>
               </div>
               <Badge className="bg-green-500/20 text-green-400 border border-green-500/30">
@@ -213,6 +182,24 @@ export function SettingsTab() {
         </Card>
       )}
 
+      {/* API Limitation Warning */}
+      <Card className="border-orange-500/30 bg-orange-500/10">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-orange-400" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">Settings are Read-Only</p>
+              <p className="text-xs text-gray-600 dark:text-[#C0E6FF]/70">
+                The API currently only supports viewing settings. Updates must be made directly in the database.
+              </p>
+            </div>
+            <Badge className="bg-orange-500/20 text-orange-400 border border-orange-500/30">
+              Read-Only
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Status Banner */}
       {hasChanges && (
         <Card className="border-yellow-500/30 bg-yellow-500/10">
@@ -220,13 +207,13 @@ export function SettingsTab() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-5 h-5 text-yellow-400" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">You have unsaved changes</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Changes cannot be saved</p>
                 <p className="text-xs text-gray-600 dark:text-[#C0E6FF]/70">
-                  Remember to save your configuration changes
+                  API doesn't support settings updates yet
                 </p>
               </div>
               <Badge className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-                Unsaved
+                Not Saved
               </Badge>
             </div>
           </CardContent>
@@ -250,7 +237,7 @@ export function SettingsTab() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="limitPerIp" className="text-gray-900 dark:text-white">IP Rate Limit (per hour)</Label>
+              <Label htmlFor="limitPerIp" className="text-gray-900 dark:text-white">IP Rate Limit</Label>
               <Input
                 id="limitPerIp"
                 type="number"
@@ -260,7 +247,7 @@ export function SettingsTab() {
                 max="100"
                 className="border-[#4DA2FF]/30 focus:border-[#4DA2FF] focus:ring-[#4DA2FF]/20 text-gray-900 dark:text-white bg-white dark:bg-[#030F1C]"
               />
-              <p className="text-xs text-gray-600 dark:text-[#C0E6FF]/70">Maximum requests per IP address per hour</p>
+              <p className="text-xs text-gray-600 dark:text-[#C0E6FF]/70">Maximum requests per IP address within TTL period</p>
             </div>
 
             <div className="space-y-2">
@@ -350,8 +337,12 @@ export function SettingsTab() {
               <p className="text-sm text-gray-600 dark:text-[#C0E6FF]/70">Requests per IP</p>
             </div>
             <div className="text-center p-4 bg-[#4DA2FF]/10 border border-[#4DA2FF]/20 rounded-lg">
-              <p className="text-2xl font-bold text-[#4DA2FF]">{Math.round(config.ttlPerIp / 3600)}h</p>
-              <p className="text-sm text-gray-600 dark:text-[#C0E6FF]/70">IP TTL (hours)</p>
+              <p className="text-2xl font-bold text-[#4DA2FF]">
+                {config.ttlPerIp >= 3600 ? `${Math.round(config.ttlPerIp / 3600)}h` : 
+                 config.ttlPerIp >= 60 ? `${Math.round(config.ttlPerIp / 60)}m` : 
+                 `${config.ttlPerIp}s`}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-[#C0E6FF]/70">IP TTL</p>
             </div>
             <div className="text-center p-4 bg-[#4DA2FF]/10 border border-[#4DA2FF]/20 rounded-lg">
               <p className="text-2xl font-bold text-[#4DA2FF]">{config.normalizedAmount}</p>
@@ -372,11 +363,11 @@ export function SettingsTab() {
             <Button 
               onClick={handleConfigUpdate} 
               size="large" 
-              disabled={loading || !hasChanges} 
-              className="flex-1 bg-[#4DA2FF] text-white hover:bg-[#4DA2FF]/80"
+              disabled={true} 
+              className="flex-1 bg-gray-400 text-white cursor-not-allowed opacity-50"
             >
               <Save className="w-4 h-4 mr-2" />
-              {loading ? "Updating..." : "Save Configuration"}
+              Save Configuration (Disabled)
             </Button>
 
             <Button 
