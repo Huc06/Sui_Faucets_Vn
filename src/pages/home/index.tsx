@@ -366,7 +366,7 @@ const HomePage = () => {
                 <button 
                   type="button"
                   className="shrink-0 w-full sm:w-auto bg-[#4DA2FF] text-white shadow-md hover:bg-[#011829] dark:bg-[#4DA2FF] dark:hover:bg-[#011829] text-sm px-6 py-3 font-medium rounded-md border-0 cursor-pointer transition-colors duration-200"
-                  onClick={() => window.open('https://discord.gg/y4fSbkev', '_blank')}
+                  onClick={() => window.open('https://discord.gg/aubGp2pX', '_blank')}
                 >
                   Join First Mover
                 </button>
